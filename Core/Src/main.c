@@ -23,7 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "pad_sm.h"
+#include "button.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,7 +34,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define SERVO1_ENGAGED_US    1000u  //placeholder values for now
+#define SERVO1_RETRACTED_US  2000u
+#define SERVO2_ENGAGED_US    2000u
+#define SERVO2_RETRACTED_US  1000u
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,7 +48,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static pad_sm_t sm;
+static button_t btn;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,7 +94,14 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  uint32_t now = HAL_GetTick();
+  pad_sm_init(&sm, now);
+  button_init(&btn, now);
 
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, SERVO1_ENGAGED_US);
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, SERVO2_ENGAGED_US);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,6 +111,32 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    uint32_t now = HAL_GetTick();
+
+    /* 1. Read the button (pull-up wiring: pressed = pin low) */
+    bool pressed = (HAL_GPIO_ReadPin(START_BTN_GPIO_Port, START_BTN_Pin) == GPIO_PIN_RESET);
+    btn_event_t ev = button_update(&btn, pressed, now);
+
+    /* 2. Update the state machine */
+    pad_sm_update(&sm, ev, now);
+
+    /* 3. Ask what the hardware should be doing */
+    pad_outputs_t out = pad_sm_outputs(&sm, now);
+
+    /* 4. Apply it to the pins */
+    HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, out.led_green ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_RED_GPIO_Port,   LED_RED_Pin,   out.led_red   ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BUZZER_GPIO_Port,    BUZZER_Pin,    out.buzzer    ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(PYRO_GPIO_Port,      PYRO_Pin,      out.pyro      ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1,
+        out.servos_retracted ? SERVO1_RETRACTED_US : SERVO1_ENGAGED_US);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2,
+        out.servos_retracted ? SERVO2_RETRACTED_US : SERVO2_ENGAGED_US);
+
+    /* 5. Heartbeat: toggles every 500 ms */
+    HAL_GPIO_WritePin(LED_HEARTBEAT_GPIO_Port, LED_HEARTBEAT_Pin,
+    ((now / 500u) % 2u) ? GPIO_PIN_SET : GPIO_PIN_RESET);
   }
   /* USER CODE END 3 */
 }
