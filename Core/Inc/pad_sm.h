@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "button.h"
 
 #define COUNTDOWN_MS        60000u
 #define BUZZER_START_MS     10000u
@@ -17,12 +18,6 @@ typedef enum {
     PAD_FIRING,
     PAD_DONE
 } pad_state_t;
-
-typedef enum {
-    BTN_NONE = 0,
-    BTN_SHORT,
-    BTN_HOLD
-} btn_event_t;
 
 typedef struct {
     bool led_green;

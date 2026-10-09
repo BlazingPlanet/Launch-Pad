@@ -85,3 +85,15 @@ pad_outputs_t pad_sm_outputs(const pad_sm_t *sm, uint32_t now_ms)
 
     return out;
 }
+
+const char *pad_state_name(pad_state_t s)
+{
+    switch (s) {
+    case PAD_DISARMED:  return "DISARMED";
+    case PAD_ARMED:     return "ARMED";
+    case PAD_COUNTDOWN: return "COUNTDOWN";
+    case PAD_FIRING:    return "FIRING";
+    case PAD_DONE:      return "DONE";
+    default:            return "UNKNOWN";
+    }
+}
