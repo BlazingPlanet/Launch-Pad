@@ -8,7 +8,7 @@
 #define COUNTDOWN_MS        60000u
 #define BUZZER_START_MS     10000u
 #define RETRACT_OFFSET_MS       0u
-#define PYRO_PULSE_MS        1000u
+#define PYRO_PULSE_MS        3000u
 #define BLINK_PERIOD_MS       250u
 
 typedef enum {
