@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "pad_sm.h"
 #include "button.h"
+#include "servo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,6 +51,8 @@
 /* USER CODE BEGIN PV */
 static pad_sm_t sm;
 static button_t btn;
+static servo_t servo1;
+static servo_t servo2;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,6 +101,9 @@ int main(void)
   pad_sm_init(&sm, now);
   button_init(&btn, now);
 
+  servo_init(&servo1, SERVO1_ENGAGED_US, SERVO1_RETRACTED_US, now);
+  servo_init(&servo2, SERVO2_ENGAGED_US, SERVO2_RETRACTED_US, now);
+
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, SERVO1_ENGAGED_US);
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, SERVO2_ENGAGED_US);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
@@ -129,10 +135,8 @@ int main(void)
     HAL_GPIO_WritePin(BUZZER_GPIO_Port,    BUZZER_Pin,    out.buzzer    ? GPIO_PIN_SET : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PYRO_GPIO_Port,      PYRO_Pin,      out.pyro      ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1,
-        out.servos_retracted ? SERVO1_RETRACTED_US : SERVO1_ENGAGED_US);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2,
-        out.servos_retracted ? SERVO2_RETRACTED_US : SERVO2_ENGAGED_US);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, servo_update(&servo1, out.servos_retracted, now));
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, servo_update(&servo2, out.servos_retracted, now));
 
     /* 5. Heartbeat: toggles every 500 ms */
     HAL_GPIO_WritePin(LED_HEARTBEAT_GPIO_Port, LED_HEARTBEAT_Pin,

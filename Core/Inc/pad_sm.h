@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "button.h"
 
-#define COUNTDOWN_MS        60000u
+#define COUNTDOWN_MS        15000u
 #define BUZZER_START_MS     10000u
 #define RETRACT_OFFSET_MS       0u
 #define PYRO_PULSE_MS        3000u
