@@ -47,6 +47,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/pad_sm.c
     Core/Src/button.c
+    Core/Src/servo.c
 )
 
 # Add include paths
