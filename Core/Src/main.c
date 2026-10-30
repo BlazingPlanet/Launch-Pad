@@ -35,10 +35,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SERVO1_ENGAGED_US    700u  //placeholder values for now
-#define SERVO1_RETRACTED_US  2300u
-#define SERVO2_ENGAGED_US    2300u
-#define SERVO2_RETRACTED_US  700u
+#define SERVO1_ENGAGED_US    900u  //placeholder values for now
+#define SERVO1_RETRACTED_US  2000u
+#define SERVO2_ENGAGED_US    2100u
+#define SERVO2_RETRACTED_US  1000u 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
